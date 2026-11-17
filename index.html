@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="건물 조건에 맞는 친환경·에너지 절약·접근성 중심의 건축 설계 아이디어를 제안하는 교육용 웹 프로토타입">
+<title>그린빌드 AI | 친환경 건축 설계 도우미</title>
+<style>
+:root{--green:#176b4b;--mint:#eaf5ef;--ink:#20312a;--muted:#65756d;--line:#dce7e0;--white:#fff}
+*{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;color:var(--ink);background:#f6f9f7;line-height:1.6}
+header{background:linear-gradient(120deg,#124d39,#25835c);color:white;padding:34px 20px}
+.wrap{max-width:1000px;margin:auto;padding:0 18px}
+.brand{font-size:14px;letter-spacing:.08em;font-weight:700;opacity:.9}
+h1{font-size:clamp(27px,5vw,42px);line-height:1.2;margin:12px 0}
+header p{max-width:700px;margin:0;color:#e4f3e9}
+main{padding:26px 0 50px}.layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.panel{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 5px 20px #193d2b0a}
+h2{font-size:20px;margin:0 0 14px}h3{font-size:17px;margin:18px 0 8px}
+label{display:block;font-weight:650;font-size:14px;margin:13px 0 5px}
+input,select{width:100%;padding:11px 12px;border:1px solid #cbd9d0;border-radius:9px;font:inherit;background:white;color:var(--ink)}
+input:focus,select:focus{outline:3px solid #b9e1ca;border-color:var(--green)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button{border:0;border-radius:10px;background:var(--green);color:white;padding:13px 18px;font-weight:700;font-size:15px;cursor:pointer;margin-top:18px;width:100%}
+button:hover{background:#10563b}.hint{font-size:12px;color:var(--muted);margin-top:8px}
+.result{display:none}.intro{color:var(--muted);font-size:14px;margin-top:-5px}
+.scoregrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:14px 0}
+.score{background:var(--mint);border-radius:12px;padding:12px;text-align:center}
+.score b{display:block;font-size:23px;color:var(--green)}.score span{font-size:12px;color:var(--muted)}
+ul{padding-left:20px;margin:8px 0}li{margin:7px 0}
+.notice{border-left:4px solid #d69b32;background:#fff8e9;padding:12px 14px;border-radius:7px;font-size:13px;margin-top:16px}
+footer{padding:22px 18px;color:var(--muted);font-size:12px;text-align:center}
+.tag{display:inline-block;background:#eaf5ef;color:#176b4b;border-radius:20px;padding:4px 9px;font-size:12px;font-weight:700}
+@media(max-width:720px){.layout{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}.scoregrid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<div class="brand">GREENBUILD AI · EDUCATION PROTOTYPE</div>
+<h1>친환경 건축 설계 도우미</h1>
+<p>건물의 위치와 규모, 예산, 설계 우선순위를 입력하면 에너지 효율·친환경성·이동 편의성을 고려한 설계 방향을 제안합니다.</p>
+</div></header>
+<main class="wrap">
+<div class="layout">
+<section class="panel">
+<h2>건축 조건 입력</h2>
+<form id="designForm">
+<label for="region">건축 지역</label>
+<select id="region" required>
+<option value="temperate">일반 기후 지역</option><option value="hot">여름철 더운 지역</option><option value="cold">겨울철 추운 지역</option><option value="coastal">해안 지역</option>
+</select>
+<div class="grid2">
+<div><label for="type">건물 종류</label><select id="type"><option>주거용</option><option>교육·공공시설</option><option>업무시설</option><option>상업시설</option></select></div>
+<div><label for="area">연면적 (㎡)</label><input id="area" type="number" min="20" max="100000" value="500" required></div>
+</div>
+<div class="grid2">
+<div><label for="floors">층수</label><input id="floors" type="number" min="1" max="100" value="3" required></div>
+<div><label for="budget">예산 (억 원)</label><input id="budget" type="number" min="0.1" max="10000" step="0.1" value="10" required></div>
+</div>
+<label for="priority">가장 중요하게 생각하는 요소</label>
+<select id="priority"><option value="energy">에너지 효율</option><option value="eco">친환경 자재와 환경 영향</option><option value="access">장애인·노약자 이동 편의성</option><option value="cost">예산 절감</option></select>
+<label for="access">접근성 설계 수준</label>
+<select id="access"><option value="high">장애인·노약자 이용을 적극 고려</option><option value="basic">기본적인 접근성 고려</option></select>
+<button type="submit">설계 방향 분석하기</button>
+<p class="hint">입력한 값은 이 페이지 안에서만 계산되며 서버로 전송되지 않습니다.</p>
+</form>
+</section>
+<section class="panel result" id="result" aria-live="polite">
+<span class="tag">분석 결과</span>
+<h2 id="resultTitle">추천 설계 방향</h2>
+<p class="intro" id="summary"></p>
+<div class="scoregrid">
+<div class="score"><b id="energyScore">-</b><span>에너지 효율 고려</span></div>
+<div class="score"><b id="ecoScore">-</b><span>친환경성 고려</span></div>
+<div class="score"><b id="accessScore">-</b><span>접근성 고려</span></div>
+</div>
+<h3>추천 설계 요소</h3><ul id="recommendations"></ul>
+<h3>확인해야 할 사항</h3><ul id="checks"></ul>
+<div class="notice">이 결과는 입력 조건과 간단한 규칙을 이용한 교육용 예시입니다. 실제 AI 모델의 예측값이나 건축 인허가·구조·에너지 성능 검토 결과가 아니며, 실제 설계에는 전문가의 검토가 필요합니다.</div>
+</section>
+</div>
+<section class="panel" style="margin-top:18px">
+<h2>서비스의 핵심 분석 기준</h2>
+<div class="grid2">
+<div><h3>에너지 효율</h3><p class="intro">단열, 창호, 차양, 자연채광·환기 등을 통해 에너지 사용을 줄이는 방향을 검토합니다.</p></div>
+<div><h3>친환경성</h3><p class="intro">자재의 환경 영향과 내구성, 재활용 가능성 등을 비교하도록 안내합니다.</p></div>
+<div><h3>이동 편의성</h3><p class="intro">출입구 단차, 경사로, 문과 복도 폭, 승강기 등 이용자의 접근성을 고려합니다.</p></div>
+<div><h3>경제성</h3><p class="intro">초기 공사비뿐 아니라 유지관리 비용까지 함께 검토하도록 안내합니다.</p></div>
+</div>
+</section>
+</main>
+<footer>GREENBUILD AI · 고등학교 인공지능 기초 수업용 웹 프로토타입</footer>
+<script>
+const form=document.getElementById('designForm');
+form.addEventListener('submit',function(e){
+ e.preventDefault();
+ const region=document.getElementById('region').value;
+ const type=document.getElementById('type').value;
+ const area=Number(document.getElementById('area').value);
+ const floors=Number(document.getElementById('floors').value);
+ const budget=Number(document.getElementById('budget').value);
+ const priority=document.getElementById('priority').value;
+ const access=document.getElementById('access').value;
+ if(!Number.isFinite(area)||area<20||!Number.isFinite(floors)||floors<1||!Number.isFinite(budget)||budget<=0){alert('면적, 층수, 예산을 올바르게 입력해 주세요.');return;}
+ let rec=[],checks=[];
+ rec.push('외벽과 지붕의 단열 성능을 검토하고, 기밀 시공으로 냉난방 손실을 줄입니다.');
+ rec.push('창의 방향과 크기를 고려해 자연채광을 확보하되, 여름철 과열을 막을 차양을 함께 검토합니다.');
+ rec.push('고효율 LED 조명과 에너지 효율이 높은 냉난방 설비를 우선 비교합니다.');
+ if(region==='hot') rec.push('여름철 일사 차단, 외부 차양, 자연 환기 계획을 강화합니다.');
+ if(region==='cold') rec.push('열 손실을 줄이는 고성능 창호와 단열, 출입구 바람막이 공간을 검토합니다.');
+ if(region==='coastal') rec.push('염분과 강풍에 견딜 수 있는 외장재와 창호의 내구성을 확인합니다.');
+ if(priority==='eco'||priority==='energy') rec.push('저탄소·재활용 가능 자재를 후보로 정하고 제품별 환경성 자료를 비교합니다.');
+ if(priority==='cost') rec.push('초기 공사비와 장기 유지관리비를 함께 비교해 예산에 맞는 대안을 선택합니다.');
+ if(access==='high') rec.push('주 출입구의 단차 제거, 적정 경사로, 넓은 출입문과 복도, 승강기 및 장애인 화장실을 계획합니다.');
+ else rec.push('주 출입구 단차와 통로 폭을 확인하고, 누구나 이용하기 쉬운 동선을 확보합니다.');
+ if(floors>=4) rec.push('층수와 이용 인원을 고려해 승강기, 피난 동선, 수직 이동 계획을 별도로 검토합니다.');
+ if(area>=1000) rec.push('건물 규모가 크므로 구역별 조명·냉난방 제어와 에너지 사용량 모니터링을 고려합니다.');
+ checks.push('지역의 기후 자료와 일조·바람 조건을 확인한 뒤 창의 방향과 환기 계획을 조정합니다.');
+ checks.push('선정한 자재의 실제 단가, 탄소 배출 정보, 인증 여부를 제조사 자료로 확인합니다.');
+ checks.push('구조 안전, 소방, 장애물 없는 생활환경 관련 법규와 인증 기준을 전문가와 확인합니다.');
+ checks.push('예산에는 설계·시공비뿐 아니라 운영 및 유지관리 비용도 포함해 비교합니다.');
+ let energy=priority==='energy'?5:4, eco=priority==='eco'?5:4, acc=priority==='access'?5:(access==='high'?5:4);
+ if(region==='hot'||region==='cold') energy=Math.min(5,energy+0);
+ document.getElementById('resultTitle').textContent=type+' 설계 추천';
+ document.getElementById('summary').textContent=`연면적 ${area.toLocaleString()}㎡, ${floors}층, 예산 ${budget}억 원 조건을 바탕으로 한 참고용 설계 방향입니다.`;
+ document.getElementById('energyScore').textContent=energy+'/5';
+ document.getElementById('ecoScore').textContent=eco+'/5';
+ document.getElementById('accessScore').textContent=acc+'/5';
+ document.getElementById('recommendations').innerHTML=rec.map(x=>'<li>'+x+'</li>').join('');
+ document.getElementById('checks').innerHTML=checks.map(x=>'<li>'+x+'</li>').join('');
+ const result=document.getElementById('result');result.style.display='block';result.scrollIntoView({behavior:'smooth',block:'start'});
+});
+</script>
+</body></html>
